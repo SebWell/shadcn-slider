@@ -1,0 +1,26 @@
+{
+  "name": "shadcn-slider",
+  "version": "1.0.0",
+  "description": "Shadcn/UI Slider component for Weweb",
+  "main": "src/Slider.vue",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "keywords": [
+    "weweb",
+    "shadcn",
+    "ui",
+    "Slider",
+    "vue",
+    "component"
+  ],
+  "author": "Shadcn/UI for Weweb Community",
+  "license": "MIT",
+  "dependencies": {
+    "vue": "^3.3.4"
+  },
+  "devDependencies": {
+    "@vue/cli-service": "^5.0.8"
+  }
+}
