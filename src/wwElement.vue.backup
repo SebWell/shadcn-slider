@@ -1,8 +1,8 @@
 <template>
   <div :class="wrapperClasses">
-    <label v-if="label" :class="labelClasses">
-      {{ label }}
-      <span v-if="required" class="text-destructive ml-1">*</span>
+    <label v-if="content.label" :class="labelClasses">
+      {{ content.label }}
+      <span v-if="content.required" class="text-destructive ml-1">*</span>
     </label>
     
     <div :class="sliderContainerClasses">
@@ -18,23 +18,23 @@
         <div 
           :class="thumbClasses"
           :style="thumbStyle"
-          :tabindex="disabled ? -1 : 0"
+          :tabindex="content.disabled ? -1 : 0"
           @keydown="handleKeyDown"
         />
       </div>
       
-      <div v-if="showValue" :class="valueClasses">
+      <div v-if="content.showValue" :class="valueClasses">
         {{ formattedValue }}
       </div>
     </div>
     
-    <div v-if="showMinMax" :class="minMaxClasses">
-      <span>{{ min }}</span>
-      <span>{{ max }}</span>
+    <div v-if="content.showMinMax" :class="minMaxClasses">
+      <span>{{ content.min }}</span>
+      <span>{{ content.max }}</span>
     </div>
     
-    <div v-if="helpText" :class="helpTextClasses">
-      {{ helpText }}
+    <div v-if="content.helpText" :class="helpTextClasses">
+      {{ content.helpText }}
     </div>
   </div>
 </template>
@@ -74,20 +74,20 @@ export default {
     const isDragging = ref(false)
 
     const normalizedValue = computed(() => {
-      const value = Math.min(Math.max(props.modelValue || 0, props.min), props.max)
-      return ((value - props.min) / (props.max - props.min)) * 100
+      const value = Math.min(Math.max(props.modelValue || 0, props.content.min), props.content.max)
+      return ((value - props.content.min) / (props.content.max - props.content.min)) * 100
     })
 
     const formattedValue = computed(() => {
-      if (props.formatValue && typeof props.formatValue === 'function') {
-        return props.formatValue(props.modelValue)
+      if (props.content.formatValue && typeof props.content.formatValue === 'function') {
+        return props.content.formatValue(props.modelValue)
       }
       return props.modelValue
     })
 
     const wrapperClasses = computed(() => cn(
       "w-full space-y-2",
-      props.customClasses
+      props.content.customClasses
     ))
 
     const labelClasses = computed(() => cn(
@@ -101,7 +101,7 @@ export default {
     const sliderClasses = computed(() => cn(
       "relative flex w-full touch-none select-none items-center cursor-pointer",
       {
-        "opacity-50 cursor-not-allowed": props.disabled
+        "opacity-50 cursor-not-allowed": props.content.disabled
       }
     ))
 
@@ -120,7 +120,7 @@ export default {
     const thumbClasses = computed(() => cn(
       "block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 absolute",
       {
-        "cursor-grab": !isDragging.value && !props.disabled,
+        "cursor-grab": !isDragging.value && !props.content.disabled,
         "cursor-grabbing": isDragging.value
       }
     ))
@@ -142,32 +142,32 @@ export default {
     ))
 
     const updateValue = (clientX) => {
-      if (!sliderRef.value || props.disabled) return
+      if (!sliderRef.value || props.content.disabled) return
 
       const rect = sliderRef.value.getBoundingClientRect()
       const percentage = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1)
-      const rawValue = props.min + percentage * (props.max - props.min)
-      const steppedValue = Math.round(rawValue / props.step) * props.step
-      const clampedValue = Math.min(Math.max(steppedValue, props.min), props.max)
+      const rawValue = props.content.min + percentage * (props.content.max - props.content.min)
+      const steppedValue = Math.round(rawValue / props.content.step) * props.content.step
+      const clampedValue = Math.min(Math.max(steppedValue, props.content.min), props.content.max)
 
       emit('update:modelValue', clampedValue)
       emit('change', clampedValue)
 
       // Update Weweb variable if defined
-      if (props.wewebVariable && typeof wwLib !== 'undefined') {
-        wwLib.wwVariable.updateValue(props.wewebVariable, clampedValue)
+      if (props.content.wewebVariable && typeof wwLib !== 'undefined') {
+        wwLib.wwVariable.updateValue(props.content.wewebVariable, clampedValue)
       }
     }
 
     const handleMouseDown = (event) => {
-      if (props.disabled) return
+      if (props.content.disabled) return
       
       isDragging.value = true
       updateValue(event.clientX)
     }
 
     const handleTouchStart = (event) => {
-      if (props.disabled) return
+      if (props.content.disabled) return
       
       isDragging.value = true
       updateValue(event.touches[0].clientX)
@@ -190,25 +190,25 @@ export default {
     }
 
     const handleKeyDown = (event) => {
-      if (props.disabled) return
+      if (props.content.disabled) return
 
       let newValue = props.modelValue
-      const step = props.step
+      const step = props.content.step
 
       switch (event.key) {
         case 'ArrowLeft':
         case 'ArrowDown':
-          newValue = Math.max(props.modelValue - step, props.min)
+          newValue = Math.max(props.modelValue - step, props.content.min)
           break
         case 'ArrowRight':
         case 'ArrowUp':
-          newValue = Math.min(props.modelValue + step, props.max)
+          newValue = Math.min(props.modelValue + step, props.content.max)
           break
         case 'Home':
-          newValue = props.min
+          newValue = props.content.min
           break
         case 'End':
-          newValue = props.max
+          newValue = props.content.max
           break
         default:
           return
